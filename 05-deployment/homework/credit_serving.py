@@ -2,15 +2,21 @@ import pickle
 import numpy as np
 from flask import Flask, request, jsonify
 
+app = Flask('credit')
+
+# Importing model and DictVectorizer
+with open('model2.bin', 'rb') as f_in:
+    model = pickle.load((f_in))
+
+with open('dv.bin', 'rb') as f_in:
+    dv = pickle.load((f_in))
+
+# Predict function
 def predict_single(customer, dv, model):
     X = dv.transform([customer])
     y_pred = model.predict_proba(X)[:, 1]
+
     return y_pred[0]
-
-with open('churn-model.bin', 'rb') as f_in:
-    dv, model = pickle.load((f_in))
-
-app = Flask('churn')
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -20,8 +26,8 @@ def predict():
     churn = prediction >= 0.5
 
     result = {
-    'churn_probability': float(prediction),
-    'churn': bool(churn),
+    'credit_card_probability': float(prediction),
+    'credit_card': bool(churn),
     }
     
     return jsonify(result)
